@@ -128,6 +128,9 @@ source "$HOME/.zsh.d/zsh-notify/notify.plugin.zsh"
 # z
 source "$HOME/.zsh.d/z/z.sh"
 
+# mysql-colorize
+source "$HOME/.zsh.d/mysql-colorize/mysql-colorize.plugin.zsh"
+
 function peco-z-search
 {
   which peco z > /dev/null
@@ -144,7 +147,50 @@ function peco-z-search
   fi
 }
 zle -N peco-z-search
-bindkey '^f' peco-z-search
+bindkey '^o' peco-z-search
+
+# zsh-autosuggestions
+source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
+
+# zsh-completions
+if [ -e /usr/local/share/zsh-completions ]; then
+    fpath=(/usr/local/share/zsh-completions $fpath)
+fi
+
+# 補完で小文字でも大文字にマッチさせる
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
+# beep を無効にする
+setopt no_beep
+
+# command line editor
+export EDITOR='emacs -nw'
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^Xe' edit-command-line
+
+# # 以降をコメントとして扱う
+setopt interactive_comments
+
+# 終了ステータスが0以外の場合にステータスを表示する
+setopt print_exit_value
+
+# zsh-syntax-highlighting-filetypes
+#source "$HOME/.zsh.d/zsh-syntax-highlighting-filetypes/zsh-syntax-highlighting-filetypes.zsh"
+
+# zsh-history-substring-search
+source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+bindkey -M emacs '^P' history-substring-search-up
+bindkey -M emacs '^N' history-substring-search-down
+
+# alias
+alias -g mf='mdfind'
+alias -g gs='git status'
+alias -g gb='git branch'
+alias -g mv='mv -v -i'
+#alias -g lsl='ls -l'
+alias -g glog='git log --oneline --decorate --graph --branches --tags --remotes --color'
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
