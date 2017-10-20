@@ -20,38 +20,43 @@ alias e='emacsclient'
 export LATEXPATH=$LATEXPATH:/opt/local/bin/pdflatex
 
 # # ブランチ名を色付きで表示させるメソッド
-# function rprompt-git-current-branch {
-#   local branch_name st branch_status
+function rprompt-git-current-branch {
+  local branch_name st branch_status
+  # return
+  
+  # if [ ! -e  ".git" ]; then
+  #   # gitで管理されていないディレクトリは何も返さない
+  #   return
+  # fi
 
-#   if [ ! -e  ".git" ]; then
-#     # gitで管理されていないディレクトリは何も返さない
-#     return
-#   fi
-#   branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
-#   st=`git status 2> /dev/null`
-#   if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
-#     # 全てcommitされてクリーンな状態
-#     branch_status="%F{green}"
-#   elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
-#     # gitに管理されていないファイルがある状態
-#     branch_status="%F{red}?"
-#   elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
-#     # git addされていないファイルがある状態
-#     branch_status="%F{red}+"
-#   elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
-#     # git commitされていないファイルがある状態
-#     branch_status="%F{yellow}!"
-#   elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
-#     # コンフリクトが起こった状態
-#     echo "%F{red}!(no branch)"
-#     return
-#   else
-#     # 上記以外の状態の場合は青色で表示させる
-#     branch_status="%F{blue}"
-#   fi
-#   # ブランチ名を色付きで表示する
-#   echo "${branch_status}[$branch_name]"
-# }
+  # branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+  # st=`git status 2> /dev/null`
+  branch_status="{blue}"
+  
+  # if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+  #   # 全てcommitされてクリーンな状態
+  #   branch_status="%F{green}"
+  # elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
+  #   # gitに管理されていないファイルがある状態
+  #   branch_status="%F{red}?"
+  # elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
+  #   # git addされていないファイルがある状態
+  #   branch_status="%F{red}+"
+  # elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
+  #   # git commitされていないファイルがある状態
+  #   branch_status="%F{yellow}!"
+  # elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
+  #   # コンフリクトが起こった状態
+  #   echo "%F{red}!(no branch)"
+  #   return
+  # else
+  #   # 上記以外の状態の場合は青色で表示させる
+  #   branch_status="%F{blue}"
+  # fi
+
+  # ブランチ名を色付きで表示する
+  echo "${branch_status}[hoghogeho]"
+}
 
 # # プロンプトが表示されるたびにプロンプト文字列を評価、置換する
 # setopt prompt_subst
@@ -81,7 +86,7 @@ ZSH_HIGHLIGHT_STYLES[path_prefix]='none'
 
 #cdとlsの省略
 setopt auto_cd
-function chpwd() { ls }
+function chpwd() { do_enter }
 
 google() {
     local str opt
@@ -183,6 +188,31 @@ setopt print_exit_value
 source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 bindkey -M emacs '^P' history-substring-search-up
 bindkey -M emacs '^N' history-substring-search-down
+
+# 右側にgitの状態を可視化
+source "$HOME/.zsh.d/zsh-git-prompt/zshrc.sh"
+RPROMPT='`git_super_status`'
+
+# Enterを押すと，lsとgit statusを表示
+function do_enter() {
+    if [ -n "$BUFFER" ]; then
+        zle accept-line
+        return 0
+    fi
+    echo
+    ls
+    # ↓おすすめ
+    # ls_abbrev
+    if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = 'true' ]; then
+        echo
+        echo -e "\e[0;33m--- git status ---\e[0m"
+        git status -sb
+    fi
+    zle reset-prompt
+    return 0
+}
+zle -N do_enter
+bindkey '^m' do_enter
 
 # alias
 alias -g mf='mdfind'
