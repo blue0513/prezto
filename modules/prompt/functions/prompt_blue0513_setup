@@ -34,24 +34,15 @@ function prompt_blue0513_setup {
       "%F{118}" # Limegreen
       "%F{226}" # Yellow
   )
-
-  # Formats:
-  #   %b - branchname
-  #   %u - unstagedstr (see below)
-  #   %c - stagedstr (see below)
-  #   %a - action (e.g. rebase-i)
-  #   %R - repository path
-  #   %S - path in the repository
-  local branch_format="(${_prompt_blue0513_colors[1]}%b%f)"
   
   # Set vcs_info parameters.
   zstyle ':vcs_info:*' enable bzr git hg svn
   zstyle ':vcs_info:*:prompt:*' check-for-changes true
   zstyle ':vcs_info:*:prompt:*' formats "${branch_format}"
   zstyle ':vcs_info:*:prompt:*' nvcsformats   ""
-  
-  # Define prompts.
-  PROMPT="${_prompt_blue0513_colors[3]}%~%f"'${vcs_info_msg_0_}'" ${_prompt_blue0513_colors[3]}❯%f "
+
+  source "$HOME/.zsh.d/zsh-git-prompt/zshrc.sh"
+  PROMPT="${_prompt_blue0513_colors[3]}%~%f"'`git_super_status`'" ${_prompt_blue0513_colors[3]}❯❯❯%f "
 }
 
 prompt_blue0513_setup "$@"
